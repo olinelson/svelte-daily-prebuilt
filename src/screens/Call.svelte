@@ -116,6 +116,14 @@
     callFrame.setShowParticipantsBar(!shown);
   };
 
+  const cycleCamera = () => {
+    if (!callFrame) {
+      logError(noCallFrameError);
+      return;
+    }
+    callFrame.cycleCamera();
+  };
+
   const getNetworkStats = async () => {
     console.log("getting network stats");
     if (!callFrame) return;
@@ -129,6 +137,19 @@
     stats.videoReceiving = latest?.videoRecvBitsPerSecond;
     stats.packetLossSend = latest?.videoSendPacketLoss;
     stats.packetLossReceive = latest?.videoRecvPacketLoss;
+  };
+
+  const listDevices = async () => {
+    const devices = await callFrame.enumerateDevices();
+    console.log(devices);
+  };
+
+  const setVideoDevice = async (deviceId) => {
+    callFrame.setInputDevicesAsync({
+      videoSource: deviceId,
+      // videoSource: yourMediaStream.getVideoTracks()[0],
+      // audioSource: null,
+    });
   };
 
   const initializeDaily = async () => {
@@ -167,6 +188,7 @@
   onMount(async () => {
     // assume if the Call component is showing, we should join
     await initializeDaily();
+    await listDevices();
   });
 
   /**
@@ -202,6 +224,8 @@
     on:fullscreen={goFullscreen}
     on:toggle-local-video={toggleLocalVideo}
     on:toggle-remote-video={toggleRemoteVideo}
+    on:cycle-camera={cycleCamera}
+    on:set-video-device={setVideoDevice}
   />
 </div>
 

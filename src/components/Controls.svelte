@@ -1,11 +1,12 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   const dispatch = createEventDispatcher();
 
   export let url;
   export let meetingState;
   export let stats;
+  let videoDevices;
   let copyStatus = "Copy URL";
 
   const handleCopyClick = () => {
@@ -16,6 +17,11 @@
       copyStatus = "Copy";
     }, 3000);
   };
+
+  onMount(async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    videoDevices = devices.filter((d) => d.kind === "videoinput");
+  });
 
   /**
    * Button click events.
@@ -39,6 +45,12 @@
   };
   const handleToggleRemoteVideoClick = () => {
     dispatch("toggle-remote-video");
+  };
+  const handleCycleCameraClick = () => {
+    dispatch("cycle-camera");
+  };
+  const handleSetVideoDevice = () => {
+    dispatch("set-video-device");
   };
   /**
    * End of button click events
@@ -127,6 +139,14 @@
         <button on:click={handleToggleRemoteVideoClick}
           >Hide remote participants (speaker view only)</button
         >
+
+        <button on:click={handleCycleCameraClick}>Cycle camera</button>
+
+        <select on:change={console.log} name="" id="">
+          {#each videoDevices as d}
+            <option value={d.id}>{d.label}</option>
+          {/each}
+        </select>
       </div>
       <hr />
     </div>
